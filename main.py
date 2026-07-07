@@ -1,8 +1,18 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
+
+URL = "https://rabotavdodo.ru/Zaraysk?tabSlug=delivery"
+
+KEYWORDS = [
+    "курьер",
+    "водитель",
+    "автомобил",
+    "личн"
+]
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -12,4 +22,26 @@ def send_message(text):
     }
     requests.post(url, data=data)
 
-send_message("✅ Бот запустился! Связь с Telegram работает.")
+def check_vacancy():
+    response = requests.get(URL)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    page_text = soup.get_text(" ").lower()
+
+    found = []
+
+    for word in KEYWORDS:
+        if word in page_text:
+            found.append(word)
+
+    if found:
+        send_message(
+            "🍕 Додо Зарайск\n"
+            "Нашёл признаки вакансии!\n\n"
+            "Найдено: " + ", ".join(found) +
+            "\n\n" + URL
+        )
+    else:
+        print("Вакансий пока нет")
+
+check_vacancy()

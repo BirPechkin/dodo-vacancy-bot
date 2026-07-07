@@ -42,6 +42,9 @@ def check_vacancy():
             "\n\n" + URL
         )
     else:
-        print("Вакансий пока нет")
+        send_message(
+            " Что видит бот на странице:\n\n"
+            + page_text[:500]
+        )
 
 check_vacancy()

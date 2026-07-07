@@ -1,4 +1,4 @@
-mport requests
+import requests
 
 URL = "https://rabotavdodo.ru/api/dodois/vacancies?localities=ca2ee3d72c08bfa111efbd700111a8ac&staffTypes=Courier"
 

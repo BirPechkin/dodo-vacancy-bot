@@ -1,14 +1,35 @@
-import requests
+import os
+import asyncio
+from playwright.async_api import async_playwright
 
-url = "https://rabotavdodo.ru/api/dodois/get-pizzeria-by-vacancy?localities=ca2ee3d72c08bfa111efbd700111a8ac&locale=ru&staffTypes=Courier"
+BOT_TOKEN = os.environ["BOT_TOKEN"]
+CHAT_ID = os.environ["CHAT_ID"]
 
-headers = {
-    "User-Agent": "Mozilla/5.0",
-    "Referer": "https://rabotavdodo.ru/Zaraysk?tabSlug=delivery",
-    "Accept": "*/*"
-}
+URL = "https://rabotavdodo.ru/Zaraysk?tabSlug=delivery"
 
-response = requests.get(url, headers=headers)
+async def get_page_text():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            headless=True
+        )
 
-print(response.status_code)
-print(response.text[:1000])
+        page = await browser.new_page()
+
+        await page.goto(
+            URL,
+            wait_until="networkidle",
+            timeout=60000
+        )
+
+        text = await page.locator("body").inner_text()
+
+        await browser.close()
+
+        return text
+
+async def main():
+    text = await get_page_text()
+
+    print(text[:1000])
+
+asyncio.run(main())

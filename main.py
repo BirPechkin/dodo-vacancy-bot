@@ -19,24 +19,25 @@ API_URL = (
 )
 
 
-
 def get_cookies():
 
     with sync_playwright() as p:
 
         browser = p.chromium.launch(
-    headless=True,
-    args=[
-        "--no-sandbox",
-        "--disable-dev-shm-usage"
-    ]
-)
+            headless=True,
+            executable_path="/usr/bin/chromium",
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        )
 
         page = browser.new_page(
             user_agent=(
                 "Mozilla/5.0 "
                 "(Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 "
+                "(KHTML, like Gecko) "
                 "Chrome/120 Safari/537.36"
             )
         )
@@ -87,6 +88,7 @@ def main():
 
 
     try:
+
         data = response.json()
 
         print(
@@ -98,6 +100,7 @@ def main():
         )
 
     except Exception:
+
         print(response.text)
 
 

@@ -19,13 +19,19 @@ API_URL = (
 )
 
 
-
 def get_cookies():
 
     with sync_playwright() as p:
 
         browser = p.chromium.launch(
             headless=True,
+            executable_path=(
+                "/opt/render/project/src/"
+                ".venv/lib/python3.14/site-packages/"
+                "playwright/driver/package/"
+                ".local-browsers/chromium-1228/"
+                "chrome-linux64/chrome"
+            ),
             args=[
                 "--no-sandbox",
                 "--disable-dev-shm-usage"
@@ -45,6 +51,7 @@ def get_cookies():
 
 
         print("OPEN PAGE")
+
 
         page.goto(
             CITY_URL,
@@ -66,7 +73,6 @@ def get_cookies():
 
 
         return cookies
-
 
 
 
@@ -118,7 +124,6 @@ def main():
     except Exception:
 
         print(response.text)
-
 
 
 

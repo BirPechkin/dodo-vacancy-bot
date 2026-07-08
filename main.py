@@ -1,11 +1,10 @@
 import os
 import subprocess
+import time
 from playwright.sync_api import sync_playwright
 
-# Хранилище браузера внутри проекта
 os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
 
-# Установка Chromium перед запуском
 subprocess.run(
     ["python", "-m", "playwright", "install", "chromium"],
     check=True
@@ -18,10 +17,28 @@ with sync_playwright() as p:
         headless=True
     )
 
-    page = browser.new_page(
+    context = browser.new_context(
         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/146 Safari/537.36",
         locale="ru-RU"
     )
+
+    page = context.new_page()
+
+    response = page.goto(
+        url,
+        wait_until="domcontentloaded",
+        timeout=60000
+    )
+
+    print("FIRST STATUS:", response.status)
+
+    # ждём прохождение JS проверки
+    time.sleep(10)
+
+    print("URL:", page.url)
+
+    cookies = context.cookies()
+    print("COOKIES:", cookies)
 
     response = page.goto(
         url,
@@ -29,10 +46,8 @@ with sync_playwright() as p:
         timeout=60000
     )
 
-    print("STATUS:", response.status)
+    print("SECOND STATUS:", response.status)
 
-    text = page.content()
-
-    print(text[:3000])
+    print(page.content()[:3000])
 
     browser.close()

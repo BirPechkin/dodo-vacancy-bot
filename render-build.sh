@@ -2,12 +2,12 @@
 
 set -e
 
-echo "INSTALL DEPENDENCIES"
+echo "INSTALL PYTHON PACKAGES"
 
 pip install -r requirements.txt
 
-echo "INSTALL PLAYWRIGHT CHROMIUM"
+echo "INSTALL PLAYWRIGHT"
 
-python -m playwright install --with-deps chromium
+python -m playwright install chromium
 
 echo "BUILD COMPLETE"

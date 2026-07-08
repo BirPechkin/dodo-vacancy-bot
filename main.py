@@ -1,24 +1,44 @@
 from playwright.sync_api import sync_playwright
-import requests
 import time
+
 
 URL = "https://rabotavdodo.ru/Lukhovitsy/eec89bd2a31db46311eedc5e2260fa4f/4254ceb0edc5826d11eff2ad492b901d?tabSlug=all#calculator"
 
-with sync_playwright() as p:
 
-    browser = p.chromium.launch(
-        headless=True
-    )
+def main():
+    with sync_playwright() as p:
 
-    page = browser.new_page()
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        )
 
-    page.goto(URL, wait_until="networkidle", timeout=60000)
+        page = browser.new_page()
 
-    time.sleep(5)
+        page.goto(
+            URL,
+            wait_until="networkidle",
+            timeout=60000
+        )
 
-    html = page.content()
+        time.sleep(5)
 
-    print("PAGE LOADED")
-    print(html[:1000])
+        print("TITLE:")
+        print(page.title())
 
-    browser.close()
+        print("URL:")
+        print(page.url)
+
+        text = page.locator("body").inner_text()
+
+        print("PAGE TEXT:")
+        print(text[:3000])
+
+        browser.close()
+
+
+if __name__ == "__main__":
+    main()

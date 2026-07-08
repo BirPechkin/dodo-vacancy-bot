@@ -2,9 +2,12 @@
 
 set -e
 
+echo "INSTALL PYTHON PACKAGES"
+
 pip install -r requirements.txt
 
-apt-get update
-apt-get install -y chromium
+echo "INSTALL PLAYWRIGHT BROWSER"
 
-echo "DONE"
+python -m playwright install chromium
+
+echo "BUILD COMPLETE"

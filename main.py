@@ -1,32 +1,42 @@
 from playwright.sync_api import sync_playwright
-from playwright.__main__ import main as playwright_main
-import requests
-import os
+import json
+import time
 
-# Скачать браузер, если его нет
-os.system("playwright install chromium")
 
-URL = "https://rabotavdodo.ru/api/dodois/vacancies?localities=eec89bd2a31db46311eedc5e2260fa4f&staffTypes=Courier"
+URL = "https://rabotavdodo.ru/Lukhovitsy/eec89bd2a31db46311eedc5e2260fa4f/4254ceb0edc5826d11eff2ad492b901d?tabSlug=all#calculator"
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
 
-    response = page.goto(URL, wait_until="networkidle")
-    print("FIRST STATUS:", response.status)
+def main():
+    with sync_playwright() as p:
 
-    cookies = page.context.cookies()
-    browser.close()
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        )
 
-session = requests.Session()
+        page = browser.new_page()
 
-for cookie in cookies:
-    session.cookies.set(cookie["name"], cookie["value"])
+        print("OPEN PAGE")
+        page.goto(URL, wait_until="networkidle", timeout=60000)
 
-r = session.get(URL, headers={
-    "User-Agent": "Mozilla/5.0",
-    "Referer": "https://rabotavdodo.ru/"
-})
+        time.sleep(5)
 
-print("SECOND STATUS:", r.status_code)
-print(r.text)
+        print("TITLE:")
+        print(page.title())
+
+        print("URL:")
+        print(page.url)
+
+        text = page.locator("body").inner_text()
+
+        print("PAGE TEXT:")
+        print(text[:2000])
+
+        browser.close()
+
+
+if __name__ == "__main__":
+    main()

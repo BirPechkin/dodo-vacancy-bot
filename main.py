@@ -5,12 +5,13 @@ from playwright.sync_api import sync_playwright
 
 os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
 
+# Для первого запуска скачиваем Chromium
 subprocess.run(
     ["python", "-m", "playwright", "install", "chromium"],
     check=True
 )
 
-url = "https://rabotavdodo.ru/api/dodois/vacancies?localities=ca2ee3d72c08bfa111efbd700111a8ac&staffTypes=Courier"
+url = "https://rabotavdodo.ru/api/dodois/vacancies?localities=ca2ee3d72c08bfa111efbd700111a8ac&staffTypes=Courier&locale=ru"
 
 with sync_playwright() as p:
     browser = p.chromium.launch(
@@ -24,6 +25,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
+    # Первый заход — пройти защиту ServicePipe
     response = page.goto(
         url,
         wait_until="domcontentloaded",
@@ -32,14 +34,13 @@ with sync_playwright() as p:
 
     print("FIRST STATUS:", response.status)
 
-    # ждём прохождение JS проверки
+    # ждём выдачу cookies
     time.sleep(10)
 
-    print("URL:", page.url)
+    print("COOKIES:")
+    print(context.cookies())
 
-    cookies = context.cookies()
-    print("COOKIES:", cookies)
-
+    # Второй запрос после прохождения защиты
     response = page.goto(
         url,
         wait_until="networkidle",
@@ -48,6 +49,7 @@ with sync_playwright() as p:
 
     print("SECOND STATUS:", response.status)
 
-    print(page.content()[:3000])
+    print("ANSWER:")
+    print(page.text_content("body"))
 
     browser.close()

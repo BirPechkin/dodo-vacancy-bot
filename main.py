@@ -3,7 +3,9 @@ import requests
 import time
 
 
-URL = "https://rabotavdodo.ru/api/dodois/vacancies?localities=ca2ee3d72c08bfa111efbd700111a8ac&staffTypes=Courier"
+PAGE_URL = "https://rabotavdodo.ru/Lukhovitsy/eec89bd2a31db46311eedc5e2260fa4f/4254ceb0edc5826d11eff2ad492b901d"
+
+API_URL = "https://rabotavdodo.ru/api/dodois/vacancies?localities=eec89bd2a31db46311eedc5e2260fa4f&staffTypes=Courier"
 
 
 def main():
@@ -18,51 +20,66 @@ def main():
             ]
         )
 
-        page = browser.new_page(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120 Safari/537.36"
+            )
         )
 
+        page = context.new_page()
 
-        # открываем сайт для получения cookies
+        print("OPEN PAGE")
+
         page.goto(
-            "https://rabotavdodo.ru/Lukhovitsy/eec89bd2a31db46311eedc5e2260fa4f/4254ceb0edc5826d11eff2ad492b901d",
+            PAGE_URL,
             wait_until="domcontentloaded",
             timeout=60000
         )
 
         time.sleep(10)
 
+        print("PAGE:", page.url)
+        print("TITLE:", page.title())
 
-        cookies = page.context.cookies()
 
-        print("COOKIES:")
-        print(cookies)
+        cookies = context.cookies()
+
+        print("COOKIES:", len(cookies))
 
 
         session = requests.Session()
 
-        for c in cookies:
+        for cookie in cookies:
             session.cookies.set(
-                c["name"],
-                c["value"],
-                domain=c["domain"]
+                cookie["name"],
+                cookie["value"],
+                domain=cookie["domain"]
             )
 
 
         headers = {
             "User-Agent": page.evaluate("navigator.userAgent"),
-            "Referer": "https://rabotavdodo.ru/"
+            "Accept": "application/json,text/plain,*/*",
+            "Referer": PAGE_URL
         }
 
 
-        r = session.get(
-            URL,
-            headers=headers
+        print("REQUEST API")
+
+
+        response = session.get(
+            API_URL,
+            headers=headers,
+            timeout=30
         )
 
 
-        print("STATUS:", r.status_code)
-        print(r.text[:3000])
+        print("STATUS:", response.status_code)
+
+        print("ANSWER:")
+        print(response.text[:5000])
 
 
         browser.close()

@@ -19,18 +19,19 @@ API_URL = (
 )
 
 
+
 def get_cookies():
 
     with sync_playwright() as p:
 
         browser = p.chromium.launch(
             headless=True,
-            executable_path="/usr/bin/chromium",
             args=[
                 "--no-sandbox",
                 "--disable-dev-shm-usage"
             ]
         )
+
 
         page = browser.new_page(
             user_agent=(
@@ -42,6 +43,7 @@ def get_cookies():
             )
         )
 
+
         print("OPEN PAGE")
 
         page.goto(
@@ -50,13 +52,21 @@ def get_cookies():
             timeout=60000
         )
 
+
         cookies = page.context.cookies()
 
-        print("COOKIES:", len(cookies))
+
+        print(
+            "COOKIES:",
+            len(cookies)
+        )
+
 
         browser.close()
 
+
         return cookies
+
 
 
 
@@ -64,10 +74,12 @@ def main():
 
     cookies = get_cookies()
 
+
     session = requests.Session()
 
 
     for cookie in cookies:
+
         session.cookies.set(
             cookie["name"],
             cookie["value"]
@@ -84,7 +96,10 @@ def main():
     )
 
 
-    print("STATUS:", response.status_code)
+    print(
+        "STATUS:",
+        response.status_code
+    )
 
 
     try:
@@ -99,11 +114,14 @@ def main():
             )
         )
 
+
     except Exception:
 
         print(response.text)
 
 
 
+
 if __name__ == "__main__":
+
     main()

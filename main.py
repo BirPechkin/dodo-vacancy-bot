@@ -25,8 +25,12 @@ def get_cookies():
     with sync_playwright() as p:
 
         browser = p.chromium.launch(
-            headless=True
-        )
+    headless=True,
+    args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage"
+    ]
+)
 
         page = browser.new_page(
             user_agent=(

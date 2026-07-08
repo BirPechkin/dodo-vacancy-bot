@@ -1,41 +1,58 @@
 from playwright.sync_api import sync_playwright
 import requests
-import os
+import json
 
 
-CITY_ID = "eec89bd2a31db46311eedc5e2260fa4f"
-
-API_URL = (
-    "https://rabotavdodo.ru/api/dodois/vacancies"
-    f"?localities={CITY_ID}&staffTypes=Courier"
+CITY_URL = (
+    "https://rabotavdodo.ru/"
+    "Lukhovitsy/"
+    "eec89bd2a31db46311eedc5e2260fa4f/"
+    "4254ceb0edc5826d11eff2ad492b901d"
+    "?tabSlug=all"
 )
 
 
+API_URL = (
+    "https://rabotavdodo.ru/api/dodois/vacancies"
+    "?localities=eec89bd2a31db46311eedc5e2260fa4f"
+    "&staffTypes=Courier"
+)
+
+
+
 def get_cookies():
+
     with sync_playwright() as p:
 
         browser = p.chromium.launch(
-            headless=True,
-            executable_path="/opt/render/project/src/.venv/lib/python3.14/site-packages/playwright/driver/package/.local-browsers/chromium-1228/chrome-linux64/chrome",
-            args=[
-                "--no-sandbox",
-                "--disable-dev-shm-usage"
-            ]
+            headless=True
         )
 
-        page = browser.new_page()
+        page = browser.new_page(
+            user_agent=(
+                "Mozilla/5.0 "
+                "(Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 "
+                "Chrome/120 Safari/537.36"
+            )
+        )
+
+        print("OPEN PAGE")
 
         page.goto(
-            "https://rabotavdodo.ru/vacancies/courier",
+            CITY_URL,
             wait_until="networkidle",
             timeout=60000
         )
 
         cookies = page.context.cookies()
 
+        print("COOKIES:", len(cookies))
+
         browser.close()
 
         return cookies
+
 
 
 def main():
@@ -44,22 +61,41 @@ def main():
 
     session = requests.Session()
 
+
     for cookie in cookies:
         session.cookies.set(
             cookie["name"],
             cookie["value"]
         )
 
+
     response = session.get(
         API_URL,
         headers={
-            "User-Agent": "Mozilla/5.0"
-        }
+            "User-Agent":
+            "Mozilla/5.0"
+        },
+        timeout=30
     )
 
+
     print("STATUS:", response.status_code)
-    print("URL:", API_URL)
-    print(response.text)
+
+
+    try:
+        data = response.json()
+
+        print(
+            json.dumps(
+                data,
+                ensure_ascii=False,
+                indent=2
+            )
+        )
+
+    except Exception:
+        print(response.text)
+
 
 
 if __name__ == "__main__":

@@ -1,109 +1,58 @@
-from playwright.sync_api import sync_playwright
 import requests
 import json
+import os
+from datetime import datetime
 
 
-CITY_URL = (
-    "https://rabotavdodo.ru/"
-    "Lukhovitsy/"
-    "eec89bd2a31db46311eedc5e2260fa4f/"
-    "4254ceb0edc5826d11eff2ad492b901d"
-    "?tabSlug=all"
-)
+CITY_ID = "eec89bd2a31db46311eedc5e2260fa4f"
+
+CITY_NAME = "Луховицы"
 
 
 API_URL = (
     "https://rabotavdodo.ru/api/dodois/vacancies"
-    "?localities=eec89bd2a31db46311eedc5e2260fa4f"
+    f"?localities={CITY_ID}"
     "&staffTypes=Courier"
 )
 
 
-def get_cookies():
+def get_vacancies():
 
-    with sync_playwright() as p:
+    session = requests.Session()
 
-        browser = p.chromium.launch(
-    headless=True,
-    args=[
-        "--no-sandbox",
-        "--disable-dev-shm-usage"
-    ]
-)
+    headers = {
+        "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
 
 
-        page = browser.new_page(
-            user_agent=(
-                "Mozilla/5.0 "
-                "(Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 "
-                "(KHTML, like Gecko) "
-                "Chrome/120 Safari/537.36"
-            )
-        )
+    response = session.get(
+        API_URL,
+        headers=headers,
+        timeout=30
+    )
 
 
-        print("OPEN PAGE")
+    print("STATUS:", response.status_code)
 
+    response.raise_for_status()
 
-        page.goto(
-            CITY_URL,
-            wait_until="networkidle",
-            timeout=60000
-        )
-
-
-        cookies = page.context.cookies()
-
-
-        print(
-            "COOKIES:",
-            len(cookies)
-        )
-
-
-        browser.close()
-
-
-        return cookies
+    return response.json()
 
 
 
 def main():
 
-    cookies = get_cookies()
-
-
-    session = requests.Session()
-
-
-    for cookie in cookies:
-
-        session.cookies.set(
-            cookie["name"],
-            cookie["value"]
-        )
-
-
-    response = session.get(
-        API_URL,
-        headers={
-            "User-Agent":
-            "Mozilla/5.0"
-        },
-        timeout=30
-    )
-
-
     print(
-        "STATUS:",
-        response.status_code
+        "START",
+        datetime.now()
     )
 
 
     try:
 
-        data = response.json()
+        data = get_vacancies()
+
 
         print(
             json.dumps(
@@ -114,12 +63,14 @@ def main():
         )
 
 
-    except Exception:
+    except Exception as e:
 
-        print(response.text)
+        print(
+            "ERROR:",
+            e
+        )
 
 
 
 if __name__ == "__main__":
-
     main()

@@ -4,7 +4,7 @@ set -e
 
 pip install -r requirements.txt
 
-python -m playwright install chromium
+apt-get update
+apt-get install -y chromium
 
-echo "PLAYWRIGHT INSTALLED"
-python -m playwright --version
+echo "DONE"

@@ -24,19 +24,12 @@ def get_cookies():
     with sync_playwright() as p:
 
         browser = p.chromium.launch(
-            headless=True,
-            executable_path=(
-                "/opt/render/project/src/"
-                ".venv/lib/python3.14/site-packages/"
-                "playwright/driver/package/"
-                ".local-browsers/chromium-1228/"
-                "chrome-linux64/chrome"
-            ),
-            args=[
-                "--no-sandbox",
-                "--disable-dev-shm-usage"
-            ]
-        )
+    headless=True,
+    args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage"
+    ]
+)
 
 
         page = browser.new_page(
